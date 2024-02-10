@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  AGENT
+  CUSTOMER
+}
+
+model User {
+  name     String    @id 
+  type     UserType
+  messages Message[]
+  queries  Query[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String   @db.Text
+  timestamp  DateTime @default(now())
+  queryId    String
+  query      Query    @relation(references: [id], fields: [queryId])
+  senderName String
+  user       User     @relation(references: [name], fields: [senderName])
+}
+
+model Query {
+  id          String    @id @default(uuid())
+  dateCreated DateTime  @default(now())
+  isClaimed   Boolean   @default(false)
+  claimedBy   String?
+  customerName  String
+  user        User      @relation(references: [name], fields: [customerName])
+  messages    Message[]
+}
