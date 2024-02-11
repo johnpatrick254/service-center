@@ -9,6 +9,7 @@ const ChatInput = ({ socket, data}) => {
     };
     const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
+        console.log(data)
         socket.emit('sendMessage',{content:text,...data});
         setText(''); //
     }
@@ -39,7 +40,7 @@ const ChatInput = ({ socket, data}) => {
                 <form className="w-full" onSubmit={handleSubmit}>
                     <input
                         type="text"
-
+                        id="chat-input"
                         value={text}
                         onChange={handleTextChange}
                         placeholder="Write your message!"

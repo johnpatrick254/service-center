@@ -20,7 +20,6 @@ export class ChatGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-
       this.logger.log(`user connected id: ${socket.id}`)
     })
   }
@@ -31,7 +30,7 @@ export class ChatGateway implements OnModuleInit {
   }) {
     //send latest sb snapshot of queries
     const queries = await this.queryService.fetchQueries(payload.take, payload.pageNumber)
-    this.server.emit('refresh-queries', JSON.stringify(queries))
+    this.server.emit('agent-queries', JSON.stringify(queries))
   };
 
   @SubscribeMessage('fetch-client')
@@ -41,21 +40,26 @@ export class ChatGateway implements OnModuleInit {
     this.logger.log(`fetch client called`)
     //send latest sb snapshot of queries
     const queries = await this.queryService.fetchQueries(payload.take, payload.pageNumber, payload.customerName)
-    socket.emit('fetch-client', JSON.stringify(queries))
+    this.server.emit('client-queries', JSON.stringify(queries))
+
+    this.logger.log(`fetch client returned`, queries)
   };
 
 
   @SubscribeMessage('sendMessage')
   async sendMessage(socket: Socket, payload: {
-    userName: string, userType: UserType, content: string, queryId?: string
+    userName: string, userType: UserType, content: string, queryId?: string, take: string, pageNumber: string
   }) {
+    this.logger.log("sendMessage called")
+    //check if user exist
 
+    const fetchedUser = (await this.userService.getUser({name:payload.userName,type:payload.userType})).name
     //find or create query
     let queryId: string
     if (payload.queryId) {
       queryId = payload.queryId
     } else {
-      queryId = (await this.queryService.createQuery(payload.userName)).id;
+      queryId = (await this.queryService.createQuery(fetchedUser)).id;
     };
 
     //check if query is claimed
@@ -63,12 +67,17 @@ export class ChatGateway implements OnModuleInit {
 
     //mark it claimed if sender is agent
     if (payload.userType === UserType.AGENT && !queryStatus) {
-      await this.queryService.claimQuery(queryId, payload.userName);
+      await this.queryService.claimQuery(queryId, fetchedUser);
     };
 
+    
     //save message
-    await this.messageService.saveMessage(queryId, payload.userName, payload.content);
-    const selectedQuery = await this.queryService.fetchQuery(queryId);
-    this.server.emit('sentMessage', JSON.stringify(selectedQuery))
+    await this.messageService.saveMessage(queryId, fetchedUser, payload.content);
+      const agentQueries = await this.queryService.fetchQueries(payload.take, payload.pageNumber)
+      this.server.emit('sentMessage', JSON.stringify(agentQueries))
+  
+        const queries = await this.queryService.fetchQueries(payload.take, payload.pageNumber, fetchedUser)
+        this.server.emit('sentMessageUser', JSON.stringify(queries))
+    
   }
 }

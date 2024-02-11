@@ -1,3 +1,5 @@
+
+
 'use client'
 
 import Header from '@/components/Header';
@@ -30,15 +32,15 @@ const page = () => {
     useEffect(() => {
 
         const fetchClientQueries = () => {
-            socket.emit('fetch-client', { take: 5, pageNumber, customerName: user });
+            socket.emit('fetch-agent', { take: 5, pageNumber });
         };
 
-        socket.on('client-queries', (data) => {
+        socket.on('agent-queries', (data) => {
             const parsedQueries = JSON.parse(data) as [];
 
             setMessages(parsedQueries);
         });
-        socket.on('sentMessageUser', (data) => {
+        socket.on('sentMessage', (data) => {
             const parsedQueries = JSON.parse(data) as [];
             setMessages(parsedQueries);
         });
@@ -52,7 +54,7 @@ const page = () => {
     return <>
         <Header user={user} newMessage={setCurrentMessageId} />
         <div className="flex h-[90vh] max-w-[98vw] mt-11 flex-row gap-x-5 bg-background-strong">
-        <div className='w-[20%] py-4 px-2 h-full flex flex-col gap-4 bg-background rounded-sm' >
+            <div className='w-[20%] py-4 px-2 h-full flex flex-col gap-4 bg-background rounded-sm' >
                 <h1 className='mx-auto text-tertiary'>Chats</h1>
                 <div className='w-full hover:cursor-pointer p-2 border border-strong shadow-sm rounded-md flex justify-between align-middle' onClick={()=>setcurrentMiddleBar('Pending')} >
                     <h2 className='text-tertiary'>{"Pending"}</h2>
@@ -85,11 +87,11 @@ const page = () => {
 
             </div>
             <div className='p-4 w-full h-full flex flex-col gap-1 bg-background rounded-sm' >
-                <ChatHeader username={user} type='customer' />
-                <ChatList currentUser={user} messages={ messages.length  ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages:[]} />
+                <ChatHeader username={user} type='agent' />
+                <ChatList currentUser={user} messages={messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages : []} />
                 <ChatInput
                     socket={socket}
-                    data={{ userName: user, userType: 'CUSTOMER',pageNumber:pageNumber,take:5, queryId: currentMessageId }}
+                    data={{ userName: user, userType: 'AGENT', pageNumber: pageNumber, take: 5, queryId: currentMessageId }}
                 />
             </div>
         </div>
