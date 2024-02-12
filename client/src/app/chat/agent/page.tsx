@@ -25,12 +25,12 @@ const page = () => {
     const user = searchParams.get('user') ?? "user";
     const socket = io(SOCKET_SERVER_URL);
     const pendingMessages = messages.length ? messages.filter((message: { isClaimed: any; }) => !message.isClaimed) : [];
-
+    const openedChat = messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages : []
     console.log(currentMessageId)
     console.log(messages.length && messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId))
     const inProgress = messages.length ? messages.filter((message: { isClaimed: any; }) => message.isClaimed) : [];
     useEffect(() => {
-
+       
         const fetchClientQueries = () => {
             socket.emit('fetch-agent', { take: 5, pageNumber });
         };
@@ -87,8 +87,8 @@ const page = () => {
 
             </div>
             <div className='p-4 w-full h-full flex flex-col gap-1 bg-background rounded-sm' >
-                <ChatHeader username={user} type='agent' />
-                <ChatList currentUser={user} messages={messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages : []} />
+               {(openedChat?.length > 0) &&  <ChatHeader username={openedChat[0]?.senderName} type={`${openedChat[0]?.senderType}`} />}
+                <ChatList currentUser={user} messages={openedChat} />
                 <ChatInput
                     socket={socket}
                     data={{ userName: user, userType: 'AGENT', pageNumber: pageNumber, take: 5, queryId: currentMessageId }}

@@ -26,7 +26,7 @@ const LoginForm: FC<{ baseURL: string }> = ({ baseURL }) => {
         <Tabs defaultValue="student" className="w-full sm:w-[400px]">
           <TabsList className="grid h-14 w-full grid-cols-2">
             <TabsTrigger value="agent">AGENT</TabsTrigger>
-            <TabsTrigger value="customer">customer</TabsTrigger>
+            <TabsTrigger value="customer">CUSTOMER</TabsTrigger>
           </TabsList>
           <TabsContent value="agent">
             <CustomForm entityType="agent" baseURL={baseURL} />

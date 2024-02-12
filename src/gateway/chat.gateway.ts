@@ -72,11 +72,11 @@ export class ChatGateway implements OnModuleInit {
 
     
     //save message
-    await this.messageService.saveMessage(queryId, fetchedUser, payload.content);
+    await this.messageService.saveMessage(queryId, fetchedUser, payload.content,payload.userType);
       const agentQueries = await this.queryService.fetchQueries(payload.take, payload.pageNumber)
       this.server.emit('sentMessage', JSON.stringify(agentQueries))
   
-        const queries = await this.queryService.fetchQueries(payload.take, payload.pageNumber, fetchedUser)
+        const queries = await this.queryService.fetchQueries(payload.take, payload.pageNumber)
         this.server.emit('sentMessageUser', JSON.stringify(queries))
     
   }

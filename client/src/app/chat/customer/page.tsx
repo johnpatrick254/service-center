@@ -23,9 +23,10 @@ const page = () => {
     const user = searchParams.get('user') ?? "user";
     const socket = io(SOCKET_SERVER_URL);
     const pendingMessages = messages.length ? messages.filter((message: { isClaimed: any; }) => !message.isClaimed) : [];
+    const openedChat = messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages : []
 
-    console.log(currentMessageId)
-    console.log(messages.length && messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId))
+
+    console.log(openedChat)
     const inProgress = messages.length ? messages.filter((message: { isClaimed: any; }) => message.isClaimed) : [];
     useEffect(() => {
 
@@ -36,11 +37,11 @@ const page = () => {
         socket.on('client-queries', (data) => {
             const parsedQueries = JSON.parse(data) as [];
 
-            setMessages(parsedQueries);
+            setMessages(parsedQueries.filter(message => message.messages[0].senderName == user));
         });
         socket.on('sentMessageUser', (data) => {
             const parsedQueries = JSON.parse(data) as [];
-            setMessages(parsedQueries);
+            setMessages(parsedQueries.filter(message => message.messages[0].senderName == user));
         });
 
         fetchClientQueries(); // Fetch initial data when component mounts
@@ -52,14 +53,14 @@ const page = () => {
     return <>
         <Header user={user} newMessage={setCurrentMessageId} />
         <div className="flex h-[90vh] max-w-[98vw] mt-11 flex-row gap-x-5 bg-background-strong">
-        <div className='w-[20%] py-4 px-2 h-full flex flex-col gap-4 bg-background rounded-sm' >
+            <div className='w-[20%] py-4 px-2 h-full flex flex-col gap-4 bg-background rounded-sm' >
                 <h1 className='mx-auto text-tertiary'>Chats</h1>
-                <div className='w-full hover:cursor-pointer p-2 border border-strong shadow-sm rounded-md flex justify-between align-middle' onClick={()=>setcurrentMiddleBar('Pending')} >
+                <div className='w-full hover:cursor-pointer p-2 border border-strong shadow-sm rounded-md flex justify-between align-middle' onClick={() => setcurrentMiddleBar('Pending')} >
                     <h2 className='text-tertiary'>{"Pending"}</h2>
                     <p className='p-3 h-2 w-2 flex justify-center text-xs bg-tertiary items-center align-middle rounded-full'>{pendingMessages.length}</p>
 
                 </div>
-                <div className='w-full hover:cursor-pointer p-2 flex border border-strong shadow-sm rounded-md justify-between align-middle' onClick={()=>setcurrentMiddleBar('In Progress')} >
+                <div className='w-full hover:cursor-pointer p-2 flex border border-strong shadow-sm rounded-md justify-between align-middle' onClick={() => setcurrentMiddleBar('In Progress')} >
                     <h2 className='text-tertiary'>{"In Progress"}</h2>
                     <p className='p-3 h-2 w-2 flex justify-center text-xs bg-tertiary items-center align-middle rounded-full'>{inProgress.length}</p>
                 </div>
@@ -68,7 +69,7 @@ const page = () => {
                 <h1 className='mx-auto text-tertiary'>{currentMiddleBar} Chats</h1>
                 {
                     currentMiddleBar == "Pending" ?
-                    pendingMessages.reverse().map((message: { messages: any; dateCreated: any; }) => {
+                        pendingMessages.reverse().map((message: { messages: any; dateCreated: any; }) => {
                             return <Chat
                                 messages={message.messages}
                                 setCurrentMessages={setCurrentMessageId}
@@ -85,11 +86,11 @@ const page = () => {
 
             </div>
             <div className='p-4 w-full h-full flex flex-col gap-1 bg-background rounded-sm' >
-                <ChatHeader username={user} type='customer' />
-                <ChatList currentUser={user} messages={ messages.length  ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages:[]} />
-                <ChatInput
+                {(openedChat?.length > 0) && <ChatHeader username={openedChat[0]?.senderName} type={`${openedChat[0]?.senderType}`} />}
+
+                <ChatList currentUser={user} messages={openedChat} /><ChatInput
                     socket={socket}
-                    data={{ userName: user, userType: 'CUSTOMER',pageNumber:pageNumber,take:5, queryId: currentMessageId }}
+                    data={{ userName: user, userType: 'CUSTOMER', pageNumber: pageNumber, take: 5, queryId: currentMessageId }}
                 />
             </div>
         </div>

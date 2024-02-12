@@ -7,10 +7,10 @@ const ChatInput = ({ socket, data}) => {
     const handleTextChange = (e: { target: SetStateAction<string>; }) => {
         setText(e.target.value);
     };
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         console.log(data)
-        socket.emit('sendMessage',{content:text,...data});
+        await socket.emit('sendMessage',{content:text,...data});
         setText(''); //
     }
     return (

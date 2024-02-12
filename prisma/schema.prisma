@@ -30,6 +30,7 @@ model Message {
   query      Query    @relation(references: [id], fields: [queryId])
   senderName String
   user       User     @relation(references: [name], fields: [senderName])
+  senderType UserType
 }
 
 model Query {

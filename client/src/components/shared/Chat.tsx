@@ -10,7 +10,7 @@ const date = new Date(dateCreated)
   const handleClick=()=>setCurrentMessages(messages[0]?.queryId)
   return (
     <div className='flex  w-full align-middle items-center border border-strong shadow-sm px-1 py-2 rounded-md justify-start hover:cursor-pointer gap-3' onClick={handleClick}>
-        <User2Icon size={"2rem"} className='bg-white rounded-full ' color='black' />
+        <div className='bg-white flex items-center justify-center text-black rounded-full w-[2rem] h-[2rem]' color='black' title={messages[0]?.senderName}> {messages[0]?.senderName[0]}{messages[0]?.senderName?.split(' ')?.at(1)?.at(0)}</div>
         <div className='w-[60%]'>
         <p className='w-full truncate'>{messages[0].content}</p>
 
