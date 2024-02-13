@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,13 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserType {
-  AGENT
-  CUSTOMER
-}
-
 model User {
-  name     String    @id 
+  name     String    @id
   type     UserType
   messages Message[]
   queries  Query[]
@@ -24,21 +16,26 @@ model User {
 
 model Message {
   id         String   @id @default(uuid())
-  content    String   @db.Text
+  content    String
   timestamp  DateTime @default(now())
   queryId    String
-  query      Query    @relation(references: [id], fields: [queryId])
   senderName String
-  user       User     @relation(references: [name], fields: [senderName])
   senderType UserType
+  query      Query    @relation(fields: [queryId], references: [id])
+  user       User     @relation(fields: [senderName], references: [name])
 }
 
 model Query {
-  id          String    @id @default(uuid())
-  dateCreated DateTime  @default(now())
-  isClaimed   Boolean   @default(false)
-  claimedBy   String?
-  customerName  String
-  user        User      @relation(references: [name], fields: [customerName])
-  messages    Message[]
+  id           String    @id @default(uuid())
+  dateCreated  DateTime  @default(now())
+  isClaimed    Boolean   @default(false)
+  claimedBy    String?
+  customerName String
+  messages     Message[]
+  user         User      @relation(fields: [customerName], references: [name])
+}
+
+enum UserType {
+  AGENT
+  CUSTOMER
 }

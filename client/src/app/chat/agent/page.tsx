@@ -25,20 +25,21 @@ const page = () => {
     const user = searchParams.get('user') ?? "user";
     const socket = io(SOCKET_SERVER_URL);
     const pendingMessages = messages.length ? messages.filter((message: { isClaimed: any; }) => !message.isClaimed) : [];
-    const openedChat = messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId)[0]?.messages : []
+    const openedChat = messages.length ? messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0]?.queryId == currentMessageId)[0]?.messages : []
     console.log(currentMessageId)
-    console.log(messages.length && messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0].queryId == currentMessageId))
+    console.log(messages.length && messages.filter((message: { messages: { queryId: string; }[]; }) => message.messages[0]?.queryId == currentMessageId))
     const inProgress = messages.length ? messages.filter((message: { isClaimed: any; }) => message.isClaimed) : [];
     useEffect(() => {
        
         const fetchClientQueries = () => {
-            socket.emit('fetch-agent', { take: 5, pageNumber });
+            socket.emit('fetch-agent', { take: 100, pageNumber });
         };
 
         socket.on('agent-queries', (data) => {
             const parsedQueries = JSON.parse(data) as [];
 
             setMessages(parsedQueries);
+            console.log(parsedQueries)
         });
         socket.on('sentMessage', (data) => {
             const parsedQueries = JSON.parse(data) as [];
@@ -66,7 +67,7 @@ const page = () => {
                     <p className='p-3 h-2 w-2 flex justify-center text-xs bg-tertiary items-center align-middle rounded-full'>{inProgress.length}</p>
                 </div>
             </div>
-            <div className='w-[25%] py-4 px-2 h-full flex flex-col gap-3 bg-background rounded-sm' >
+            <div className='w-[34%] py-4 px-2 h-full flex flex-col gap-3 bg-background rounded-sm overflow-y-auto antialiased scrollbar-thin scrollbar-thumb-background-strong scrollbar-thumb-rounded' >
                 <h1 className='mx-auto text-tertiary'>{currentMiddleBar} Chats</h1>
                 {
                     currentMiddleBar == "Pending" ?
@@ -91,7 +92,7 @@ const page = () => {
                 <ChatList currentUser={user} messages={openedChat} />
                 <ChatInput
                     socket={socket}
-                    data={{ userName: user, userType: 'AGENT', pageNumber: pageNumber, take: 5, queryId: currentMessageId }}
+                    data={{ userName: user, userType: 'AGENT', pageNumber: pageNumber, take: 100, queryId: currentMessageId }}
                 />
             </div>
         </div>

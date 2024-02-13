@@ -31,7 +31,7 @@ const page = () => {
     useEffect(() => {
 
         const fetchClientQueries = () => {
-            socket.emit('fetch-client', { take: 5, pageNumber, customerName: user });
+            socket.emit('fetch-client', { take: 100, pageNumber, customerName: user });
         };
 
         socket.on('client-queries', (data) => {
@@ -65,11 +65,11 @@ const page = () => {
                     <p className='p-3 h-2 w-2 flex justify-center text-xs bg-tertiary items-center align-middle rounded-full'>{inProgress.length}</p>
                 </div>
             </div>
-            <div className='w-[25%] py-4 px-2 h-full flex flex-col gap-3 bg-background rounded-sm' >
+            <div className='w-[33%] py-4 px-2 h-full flex flex-col gap-3 bg-background rounded-sm overflow-y-auto antialiased scrollbar-thin scrollbar-thumb-background-strong scrollbar-thumb-rounded' >
                 <h1 className='mx-auto text-tertiary'>{currentMiddleBar} Chats</h1>
                 {
                     currentMiddleBar == "Pending" ?
-                        pendingMessages.reverse().map((message: { messages: any; dateCreated: any; }) => {
+                    pendingMessages.reverse().map((message: { messages: any; dateCreated: any; }) => {
                             return <Chat
                                 messages={message.messages}
                                 setCurrentMessages={setCurrentMessageId}
@@ -88,9 +88,10 @@ const page = () => {
             <div className='p-4 w-full h-full flex flex-col gap-1 bg-background rounded-sm' >
                 {(openedChat?.length > 0) && <ChatHeader username={openedChat[0]?.senderName} type={`${openedChat[0]?.senderType}`} />}
 
-                <ChatList currentUser={user} messages={openedChat} /><ChatInput
+                <ChatList currentUser={user} messages={openedChat} />
+                <ChatInput
                     socket={socket}
-                    data={{ userName: user, userType: 'CUSTOMER', pageNumber: pageNumber, take: 5, queryId: currentMessageId }}
+                    data={{ userName: user, userType: 'CUSTOMER', pageNumber: pageNumber, take: 100, queryId: currentMessageId }}
                 />
             </div>
         </div>

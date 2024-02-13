@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "seed":"npx prisma migrate reset --force && cd prisma && npx ts-node seed.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -27,6 +28,7 @@
     "@nestjs/platform-socket.io": "^10.3.2",
     "@nestjs/websockets": "^10.3.2",
     "@prisma/client": "^5.9.1",
+    "csv-parse": "^5.5.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
